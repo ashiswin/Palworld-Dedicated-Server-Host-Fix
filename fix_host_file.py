@@ -7,7 +7,7 @@ from shutil import move, rmtree
 INPUT_FILENAME = "00000000000000000000000000000001.sav"
 SAMPLE_FILENAME = "<YOUR SAVE FILE NAME>"  # The file created when you first join your dedicated server
 
-INPUT_EXTRACTION_DIR = INPUT_FILENAME.split('.')[0]
+INPUT_EXTRACTION_DIR = INPUT_FILENAME.split(".")[0]
 SAMPLE_EXTRACTION_DIR = SAMPLE_FILENAME.split(".")[0]
 # Extract existing saves
 try:
@@ -20,12 +20,8 @@ try:
 except FileExistsError:
     pass
 
-subprocess.run(
-    ["offzip.exe", "-s", "-a", "-o", INPUT_FILENAME, INPUT_EXTRACTION_DIR]
-)
-subprocess.run(
-    ["offzip.exe", "-s", "-a", "-o", SAMPLE_FILENAME, SAMPLE_EXTRACTION_DIR]
-)
+subprocess.run(["offzip.exe", "-s", "-a", "-o", INPUT_FILENAME, INPUT_EXTRACTION_DIR])
+subprocess.run(["offzip.exe", "-s", "-a", "-o", SAMPLE_FILENAME, SAMPLE_EXTRACTION_DIR])
 
 PLAYER_UID_GUID_OFFSET = 0x6D2
 INDIVIDUAL_ID_GUID_OFFSET = 0x774
@@ -88,4 +84,6 @@ print("Cleaning up...")
 rmtree(INPUT_EXTRACTION_DIR)
 rmtree(SAMPLE_EXTRACTION_DIR)
 
-print(f"Successfully processed {INPUT_FILENAME} and wrote to {SAMPLE_FILENAME}\n\t{SAMPLE_FILENAME}.old contains the original save file from your dedicated server")
+print(
+    f"Successfully processed {INPUT_FILENAME} and wrote to {SAMPLE_FILENAME}\n\t{SAMPLE_FILENAME}.old contains the original save file from your dedicated server"
+)
