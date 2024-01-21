@@ -1,3 +1,5 @@
 *.gva
 *.sav
 *.old
+*.orig
+*.dat
