@@ -5,7 +5,7 @@ import os
 from shutil import move, rmtree
 
 INPUT_FILENAME = "00000000000000000000000000000001.sav"
-SAMPLE_FILENAME = "51D4676E000000000000000000000000.sav"  # The file created when you first join your dedicated server
+SAMPLE_FILENAME = "<YOUR SAVE FILE NAME>"  # The file created when you first join your dedicated server
 
 INPUT_EXTRACTION_DIR = INPUT_FILENAME.split('.')[0]
 SAMPLE_EXTRACTION_DIR = SAMPLE_FILENAME.split(".")[0]
