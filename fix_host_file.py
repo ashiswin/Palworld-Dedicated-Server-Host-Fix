@@ -26,6 +26,10 @@ subprocess.run(["offzip.exe", "-s", "-a", "-o", SAMPLE_FILENAME, SAMPLE_EXTRACTI
 PLAYER_UID_GUID_OFFSET = 0x6D2
 INDIVIDUAL_ID_GUID_OFFSET = 0x774
 INSTANCE_ID_GUID_OFFSET = 0x7C8
+ORIGINAL_ID_BYTE_OFFSET = 12
+
+STEAM_ID_LENGTH_BYTES = 4
+INSTANCE_ID_LENGTH_BYTES = 16
 
 steam_id = bytearray.fromhex(SAMPLE_EXTRACTION_DIR)[0:4]
 steam_id.reverse()
@@ -38,32 +42,38 @@ original_bytearray = bytearray(original_data)
 sample_bytearray = bytearray(sample_data)
 
 # Overwrite player ID GUID
-original_bytearray[PLAYER_UID_GUID_OFFSET : PLAYER_UID_GUID_OFFSET + 4] = steam_id
-original_bytearray[INDIVIDUAL_ID_GUID_OFFSET : INDIVIDUAL_ID_GUID_OFFSET + 4] = steam_id
+original_bytearray[
+    PLAYER_UID_GUID_OFFSET : PLAYER_UID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES
+] = steam_id
+original_bytearray[
+    INDIVIDUAL_ID_GUID_OFFSET : INDIVIDUAL_ID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES
+] = steam_id
 
 print(
-    f"Updated Player UID GUID {hex(PLAYER_UID_GUID_OFFSET)}:{hex(PLAYER_UID_GUID_OFFSET + 4)} from {binascii.hexlify(original_data[PLAYER_UID_GUID_OFFSET:PLAYER_UID_GUID_OFFSET + 4])} to {binascii.hexlify(original_bytearray[PLAYER_UID_GUID_OFFSET:PLAYER_UID_GUID_OFFSET + 4])}"
+    f"Updated Player UID GUID {hex(PLAYER_UID_GUID_OFFSET)}:{hex(PLAYER_UID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES)} from {binascii.hexlify(original_data[PLAYER_UID_GUID_OFFSET:PLAYER_UID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES])} to {binascii.hexlify(original_bytearray[PLAYER_UID_GUID_OFFSET:PLAYER_UID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES])}"
 )
 print(
-    f"Updated Individual ID GUID from {hex(INDIVIDUAL_ID_GUID_OFFSET)}:{hex(INDIVIDUAL_ID_GUID_OFFSET + 4)} from {binascii.hexlify(original_data[INDIVIDUAL_ID_GUID_OFFSET:INDIVIDUAL_ID_GUID_OFFSET + 4])} to {binascii.hexlify(original_bytearray[INDIVIDUAL_ID_GUID_OFFSET:INDIVIDUAL_ID_GUID_OFFSET + 4])}"
+    f"Updated Individual ID GUID from {hex(INDIVIDUAL_ID_GUID_OFFSET)}:{hex(INDIVIDUAL_ID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES)} from {binascii.hexlify(original_data[INDIVIDUAL_ID_GUID_OFFSET:INDIVIDUAL_ID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES])} to {binascii.hexlify(original_bytearray[INDIVIDUAL_ID_GUID_OFFSET:INDIVIDUAL_ID_GUID_OFFSET + STEAM_ID_LENGTH_BYTES])}"
 )
 
 # Remove "01" byte from the "0000...0001.sav" ID
-original_bytearray[PLAYER_UID_GUID_OFFSET + 12] = 0
-original_bytearray[INDIVIDUAL_ID_GUID_OFFSET + 12] = 0
+original_bytearray[PLAYER_UID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET] = 0
+original_bytearray[INDIVIDUAL_ID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET] = 0
 print(
-    f"Reset 1 byte at {hex(PLAYER_UID_GUID_OFFSET + 12)} from {original_data[PLAYER_UID_GUID_OFFSET + 12]} to {original_bytearray[PLAYER_UID_GUID_OFFSET + 12]}"
+    f"Reset 1 byte at {hex(PLAYER_UID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET)} from {original_data[PLAYER_UID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET]} to {original_bytearray[PLAYER_UID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET]}"
 )
 print(
-    f"Reset 1 byte at {hex(INDIVIDUAL_ID_GUID_OFFSET + 12)} from {original_data[INDIVIDUAL_ID_GUID_OFFSET + 12]} to {original_bytearray[INDIVIDUAL_ID_GUID_OFFSET + 12]}"
+    f"Reset 1 byte at {hex(INDIVIDUAL_ID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET)} from {original_data[INDIVIDUAL_ID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET]} to {original_bytearray[INDIVIDUAL_ID_GUID_OFFSET + ORIGINAL_ID_BYTE_OFFSET]}"
 )
 
 # Overwrite instance ID for inventory
 original_bytearray[
-    INSTANCE_ID_GUID_OFFSET : INSTANCE_ID_GUID_OFFSET + 16
-] = sample_bytearray[INSTANCE_ID_GUID_OFFSET : INSTANCE_ID_GUID_OFFSET + 16]
+    INSTANCE_ID_GUID_OFFSET : INSTANCE_ID_GUID_OFFSET + INSTANCE_ID_LENGTH_BYTES
+] = sample_bytearray[
+    INSTANCE_ID_GUID_OFFSET : INSTANCE_ID_GUID_OFFSET + INSTANCE_ID_LENGTH_BYTES
+]
 print(
-    f"Updated Instance ID GUID {hex(INSTANCE_ID_GUID_OFFSET)}:{hex(INSTANCE_ID_GUID_OFFSET + 16)} from {binascii.hexlify(original_data[INSTANCE_ID_GUID_OFFSET:INSTANCE_ID_GUID_OFFSET + 16])} to {binascii.hexlify(original_bytearray[INSTANCE_ID_GUID_OFFSET:INSTANCE_ID_GUID_OFFSET + 16])}"
+    f"Updated Instance ID GUID {hex(INSTANCE_ID_GUID_OFFSET)}:{hex(INSTANCE_ID_GUID_OFFSET + INSTANCE_ID_LENGTH_BYTES)} from {binascii.hexlify(original_data[INSTANCE_ID_GUID_OFFSET:INSTANCE_ID_GUID_OFFSET + INSTANCE_ID_LENGTH_BYTES])} to {binascii.hexlify(original_bytearray[INSTANCE_ID_GUID_OFFSET:INSTANCE_ID_GUID_OFFSET + INSTANCE_ID_LENGTH_BYTES])}"
 )
 
 compressed_data = zlib.compress(original_bytearray)
