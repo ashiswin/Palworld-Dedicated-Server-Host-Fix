@@ -12,5 +12,7 @@
     * Level save file (PalServer/Pal/Saved/SaveGames/0/<World ID>/Level.sav)
 3. Update the SAMPLE_FILENAME variable with your newly generated player save file. (e.g. 51D4676E000000000000000000000000.sav)
 4. Run `fix_host_file.py` and observe for errors
-5. Copy the generated file (should be the same as SAMPLE_FILENAME) into your dedicated server saved files folder and replace the existing save
+5. Copy the generated files into your dedicated server saved files folder and replace the existing save
+    * Replace the generated player file with the new one
+    * Replace the level save file with the new one
 6. Profit!
