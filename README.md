@@ -12,7 +12,8 @@
     * You should be presented with a character creation screen. Go ahead and create a new character, we need it to patch the host file later.
     * Check that there's a new player save file generated in `<PalServer Install Directory>/PalServer/Pal/Saved/SaveGames/0/<World ID>/Players`. That's the file you need for step 5.
 3. Shut down the dedicated server
-4. Clone this repository anywhere in your dedicated server, or just download `fix_host_file.py`
+4. Clone this repository anywhere **in your dedicated server**, or just download `fix_host_file.py`
+    * Ensure you have Python 3 installed on the server
 5. Run `fix_host_file.py` in the following manner: `python fix_host_file.py "<PalServer Install Directory>/PalServer/Pal/Saved/SaveGames/0/<World ID>" <Newly generated filename from step 2>`
     * Example usage (Windows): `py fix_host_file.py "C:\Program Files (x86)\Steam\steamapps\common\PalServer\Pal\Saved\SaveGames\0\3DAB7FAF44A6A0E6576B0EA3C84F24A8" 51D4676E000000000000000000000000.sav`
     * Example usage (Linux): `python fix_host_file.py "~/Steam/steamapps/common/PalServer/Pal/Saved/SaveGames/0/3DAB7FAF44A6A0E6576B0EA3C84F24A8" 51D4676E000000000000000000000000.sav`
