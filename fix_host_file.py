@@ -1,12 +1,48 @@
+import argparse
 import zlib
 import binascii
-import subprocess
-import os
+import os.path
 from shutil import move, rmtree
 
-INPUT_FILENAME = "00000000000000000000000000000001.sav"
-SAMPLE_FILENAME = "51D4676E000000000000000000000000.sav"  # The file created when you first join your dedicated server
-LEVEL_FILENAME = "Level.sav"
+parser = argparse.ArgumentParser(
+    description="Palworld dedicated server host save fixer"
+)
+parser.add_argument(
+    "saves_location",
+    type=str,
+    help="the directory your server saves are stored (e.g.: PalServer\Pal\Saved\SaveGames\0\3DAB7FAF44A6A0E6576B0EA3C84F24A8",
+)
+parser.add_argument(
+    "generated_filename",
+    type=str,
+    help="the name of the save file to fix (this will be the newly generated save, NOT 00000000000000000000000000000001.sav)",
+)
+args = parser.parse_args()
+
+if not os.path.isfile(f"{args.saves_location}/Level.sav"):
+    print("Invalid server location provided")
+    parser.print_help()
+    exit(-1)
+
+if not os.path.isfile(f"{args.saves_location}/Players/{args.generated_filename}"):
+    print(
+        "Invalid generated player save file provided. This should be the newly generated player save file with your steam ID on it."
+    )
+    parser.print_help()
+    exit(-1)
+
+if not os.path.isfile(
+    f"{args.saves_location}/Players/00000000000000000000000000000001.sav"
+):
+    print(
+        "Unable to find host's save file (00000000000000000000000000000001.sav). Please ensure it exists."
+    )
+    parser.print_help()
+    exit(-1)
+
+INPUT_FILENAME = f"{args.saves_location}/Players/00000000000000000000000000000001.sav"
+SAMPLE_FILENAME = f"{args.saves_location}/Players/{args.generated_filename}"  # The file created when you first join your dedicated server
+LEVEL_FILENAME = f"{args.saves_location}/Level.sav"
 
 original_data = bytearray(open(INPUT_FILENAME, "rb").read())
 original_data = zlib.decompress(original_data[12:])
@@ -30,7 +66,7 @@ ORIGINAL_ID_BYTE_OFFSET = 12
 STEAM_ID_LENGTH_BYTES = 4
 INSTANCE_ID_LENGTH_BYTES = 16
 
-steam_id = bytearray.fromhex(SAMPLE_FILENAME.split(".")[0])[0:4]
+steam_id = bytearray.fromhex(args.generated_filename.split(".")[0])[0:4]
 steam_id.reverse()
 
 print(f"Fixing save file for player {steam_id}")
