@@ -8,21 +8,13 @@ INPUT_FILENAME = "00000000000000000000000000000001.sav"
 SAMPLE_FILENAME = "51D4676E000000000000000000000000.sav"  # The file created when you first join your dedicated server
 LEVEL_FILENAME = "Level.sav"
 
-INPUT_EXTRACTION_DIR = INPUT_FILENAME.split(".")[0]
-SAMPLE_EXTRACTION_DIR = SAMPLE_FILENAME.split(".")[0]
-# Extract existing saves
-try:
-    os.mkdir(INPUT_EXTRACTION_DIR)
-except FileExistsError:
-    pass
+original_data = bytearray(open(INPUT_FILENAME, "rb").read())
+original_data = zlib.decompress(original_data[12:])
+original_bytearray = bytearray(original_data)
 
-try:
-    os.mkdir(SAMPLE_EXTRACTION_DIR)
-except FileExistsError:
-    pass
-
-subprocess.run(["offzip.exe", "-s", "-a", "-o", INPUT_FILENAME, INPUT_EXTRACTION_DIR])
-subprocess.run(["offzip.exe", "-s", "-a", "-o", SAMPLE_FILENAME, SAMPLE_EXTRACTION_DIR])
+sample_data = bytearray(open(SAMPLE_FILENAME, "rb").read())
+sample_data = zlib.decompress(sample_data[12:])
+sample_bytearray = bytearray(sample_data)
 
 level_data = bytearray(open(LEVEL_FILENAME, "rb").read())
 level_data = zlib.decompress(level_data[12:])
@@ -38,15 +30,10 @@ ORIGINAL_ID_BYTE_OFFSET = 12
 STEAM_ID_LENGTH_BYTES = 4
 INSTANCE_ID_LENGTH_BYTES = 16
 
-steam_id = bytearray.fromhex(SAMPLE_EXTRACTION_DIR)[0:4]
+steam_id = bytearray.fromhex(SAMPLE_FILENAME.split(".")[0])[0:4]
 steam_id.reverse()
 
-print(steam_id)
-original_data = open(f"{INPUT_FILENAME.split('.')[0]}/0000000c.gva", "rb").read()
-sample_data = open(f"{SAMPLE_FILENAME.split('.')[0]}/0000000c.gva", "rb").read()
-
-original_bytearray = bytearray(original_data)
-sample_bytearray = bytearray(sample_data)
+print(f"Fixing save file for player {steam_id}")
 
 # Overwrite player ID GUID
 original_bytearray[
@@ -91,6 +78,7 @@ print(
     f"Updated Instance ID GUID {hex(level_data_instance_id_offset - INSTANCE_ID_WRITE_OFFSET)}:{hex(level_data_instance_id_offset - INSTANCE_ID_WRITE_OFFSET + STEAM_ID_LENGTH_BYTES)} from {binascii.hexlify(level_data[level_data_instance_id_offset - INSTANCE_ID_WRITE_OFFSET : level_data_instance_id_offset - INSTANCE_ID_WRITE_OFFSET + STEAM_ID_LENGTH_BYTES])} to {binascii.hexlify(level_bytearray[level_data_instance_id_offset - INSTANCE_ID_WRITE_OFFSET : level_data_instance_id_offset - INSTANCE_ID_WRITE_OFFSET + STEAM_ID_LENGTH_BYTES])}"
 )
 
+# Compress and write level save file
 compressed_level_data = zlib.compress(level_bytearray)
 uncompressed_level_len = len(level_data)
 compressed_level_len = len(compressed_level_data)
@@ -105,6 +93,7 @@ f.write(b"PlZ")
 f.write(bytes([0x32]))
 f.write(compressed_level_data)
 
+# Compress and write player save file
 compressed_data = zlib.compress(original_bytearray)
 uncompressed_len = len(original_data)
 compressed_len = len(compressed_data)
@@ -117,10 +106,6 @@ f.write(compressed_len.to_bytes(4, byteorder="little"))
 f.write(b"PlZ")
 f.write(bytes([0x31]))
 f.write(compressed_data)
-
-print("Cleaning up...")
-rmtree(INPUT_EXTRACTION_DIR)
-rmtree(SAMPLE_EXTRACTION_DIR)
 
 print(
     f"Successfully processed {INPUT_FILENAME} and wrote to {SAMPLE_FILENAME}\n\t{SAMPLE_FILENAME}.old contains the original save file from your dedicated server"
