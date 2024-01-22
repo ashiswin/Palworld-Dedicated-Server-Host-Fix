@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "saves_location",
     type=str,
-    help="the directory your server saves are stored (e.g.: PalServer\Pal\Saved\SaveGames\0\3DAB7FAF44A6A0E6576B0EA3C84F24A8",
+    help="the directory your server saves are stored (e.g.: PalServer\\Pal\\Saved\\SaveGames\\0\\3DAB7FAF44A6A0E6576B0EA3C84F24A8",
 )
 parser.add_argument(
     "generated_filename",
