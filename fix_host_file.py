@@ -13,9 +13,15 @@ parser.add_argument(
     help="the directory your server saves are stored (e.g.: PalServer\\Pal\\Saved\\SaveGames\\0\\3DAB7FAF44A6A0E6576B0EA3C84F24A8",
 )
 parser.add_argument(
-    "generated_filename",
+    "dst_filename",
     type=str,
-    help="the name of the save file to fix (this will be the newly generated save, NOT 00000000000000000000000000000001.sav)",
+    help="the name of the save file to overwrite (this will be the newly generated save, NOT 00000000000000000000000000000001.sav)",
+)
+parser.add_argument(
+    "src_filename",
+    type=str,
+    default="00000000000000000000000000000001.sav",
+    help="the name of the save file to pull from (this will default to 00000000000000000000000000000001.sav if not set)",
 )
 args = parser.parse_args()
 
@@ -24,31 +30,32 @@ if not os.path.isfile(f"{args.saves_location}/Level.sav"):
     parser.print_help()
     exit(-1)
 
-if not os.path.isfile(f"{args.saves_location}/Players/{args.generated_filename}"):
+if not os.path.isfile(f"{args.saves_location}/Players/{args.dst_filename}"):
     print(
         "Invalid generated player save file provided. This should be the newly generated player save file with your steam ID on it."
     )
     parser.print_help()
     exit(-1)
 
+
 if not os.path.isfile(
-    f"{args.saves_location}/Players/00000000000000000000000000000001.sav"
+    f"{args.saves_location}/Players/{args.src_filename}"
 ):
     print(
-        "Unable to find host's save file (00000000000000000000000000000001.sav). Please ensure it exists."
+        f"Unable to find source save file ({args.src_filename}). Please ensure it exists."
     )
     parser.print_help()
     exit(-1)
 
-INPUT_FILENAME = f"{args.saves_location}/Players/00000000000000000000000000000001.sav"
-SAMPLE_FILENAME = f"{args.saves_location}/Players/{args.generated_filename}"  # The file created when you first join your dedicated server
+SRC_FILENAME = f"{args.saves_location}/Players/{args.src_filename}"
+DST_FILENAME = f"{args.saves_location}/Players/{args.dst_filename}"  # The file created when you first join your dedicated server
 LEVEL_FILENAME = f"{args.saves_location}/Level.sav"
 
-original_data = bytearray(open(INPUT_FILENAME, "rb").read())
+original_data = bytearray(open(SRC_FILENAME, "rb").read())
 original_data = zlib.decompress(original_data[12:])
 original_bytearray = bytearray(original_data)
 
-sample_data = bytearray(open(SAMPLE_FILENAME, "rb").read())
+sample_data = bytearray(open(DST_FILENAME, "rb").read())
 sample_data = zlib.decompress(sample_data[12:])
 sample_bytearray = bytearray(sample_data)
 
@@ -66,7 +73,7 @@ ORIGINAL_ID_BYTE_OFFSET = 12
 STEAM_ID_LENGTH_BYTES = 4
 INSTANCE_ID_LENGTH_BYTES = 16
 
-steam_id = bytearray.fromhex(args.generated_filename.split(".")[0])[0:4]
+steam_id = bytearray.fromhex(args.dst_filename.split(".")[0])[0:4]
 steam_id.reverse()
 
 print(f"Fixing save file for player {steam_id}")
@@ -134,9 +141,9 @@ compressed_data = zlib.compress(original_bytearray)
 uncompressed_len = len(original_data)
 compressed_len = len(compressed_data)
 
-move(SAMPLE_FILENAME, f"{SAMPLE_FILENAME}.old")
+move(DST_FILENAME, f"{DST_FILENAME}.old")
 
-f = open(SAMPLE_FILENAME, "wb")
+f = open(DST_FILENAME, "wb")
 f.write(uncompressed_len.to_bytes(4, byteorder="little"))
 f.write(compressed_len.to_bytes(4, byteorder="little"))
 f.write(b"PlZ")
@@ -144,5 +151,5 @@ f.write(bytes([0x31]))
 f.write(compressed_data)
 
 print(
-    f"Successfully processed {INPUT_FILENAME} and wrote to {SAMPLE_FILENAME}\n\t{SAMPLE_FILENAME}.old contains the original save file from your dedicated server"
+    f"Successfully processed {SRC_FILENAME} and wrote to {DST_FILENAME}\n\t{DST_FILENAME}.old contains the original save file from your dedicated server"
 )
